@@ -17,8 +17,6 @@ Config lobby(void)
         DONE
     } state = SIZE;
 
-    char anw;
-
     while (state != DONE)
     {
         if (state == SIZE)
@@ -29,9 +27,9 @@ Config lobby(void)
             printf("Choose the sudoku size:\n");
             printf("[4]  Mini Sudoku (4x4)\n");
             printf("[9]  Traditional Sudoku (9x9)\n");
-            printf("[16] Giant Sudoku (16x16)\n");
-            printf("[25] Supreme Sudoku (25x25)\n");
-            printf("[36] Supreme II Sudoku (36x36)\n");
+            printf("[16] Big Sudoku (16x16)\n");
+            printf("[25] Giant Sudoku (25x25)\n");
+            printf("[36] Supreme Sudoku (36x36)\n");
             printf("[49] Ultimate Sudoku (49x49)\n");
 
             scanf("%d", &Lconfig.N);
@@ -39,23 +37,6 @@ Config lobby(void)
             if (Lconfig.N == 4 || Lconfig.N == 9 || Lconfig.N == 16 ||
                 Lconfig.N == 25 || Lconfig.N == 36 || Lconfig.N == 49)
             {
-                if (Lconfig.N == 16 || Lconfig.N == 25 ||
-                    Lconfig.N == 36 || Lconfig.N == 49)
-                {
-                    int c;
-                    printf("This is a challenge. Continue? (y/n)\n");
-                    scanf(" %c", &anw);
-                    while ((c = getchar()) != '\n' && c != EOF)
-                    {
-                        // Loop vazio para limpar o buffer
-                    }
-
-                    if (anw == 'n' || anw == 'N')
-                    {
-                        state = SIZE;
-                        continue;
-                    }
-                }
                 state = MODE;
             }
             else
@@ -318,9 +299,7 @@ void playGame(int **tab, int N, int M)
             int c;
             printf("Invalid value, try again\n");
             while ((c = getchar()) != '\n' && c != EOF)
-            {
-                // Loop vazio para limpar o buffer
-            }
+            {}
             continue;
         }
 
