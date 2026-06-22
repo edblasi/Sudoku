@@ -5,29 +5,24 @@
 
 bool ismovValid(int **tab, int i, int j, int num, int N, int M)
 {
-    int x, y;
-
-    /* Verifica linha */
-    for (y = 0; y < N; y++)
+    for (int y = 0; y < N; y++)
     {
         if ((num == tab[i][y]) && (y != j))
             return false;
     }
 
-    /* Verifica coluna */
-    for (x = 0; x < N; x++)
+    for (int x = 0; x < N; x++)
     {
         if ((num == tab[x][j]) && (x != i))
             return false;
     }
 
-    /* Verifica bloco */
     int bgi = (i / M) * M;
     int bgj = (j / M) * M;
 
-    for (x = bgi; x < bgi + M; x++)
+    for (int x = bgi; x < bgi + M; x++)
     {
-        for (y = bgj; y < bgj + M; y++)
+        for (int y = bgj; y < bgj + M; y++)
         {
             if ((tab[x][y] == num) && !(y == j && x == i))
                 return false;
@@ -162,8 +157,9 @@ bool solveBruteStandard(int **tab, int N, int M)
                         tab[i][j] = num;
 
                         if (solveBruteStandard(tab, N, M))
+                        {
                             return true;
-
+                        }
                         tab[i][j] = 0;
                     }
                 }
@@ -190,8 +186,9 @@ bool solveBruteDensity(int **tab, int N, int M)
             tab[i][j] = num;
 
             if (solveBruteDensity(tab, N, M))
+            {
                 return true;
-
+            }
             tab[i][j] = 0;
         }
     }
@@ -221,8 +218,9 @@ bool solveBruteDensityHash(int **tab, int N, int M)
             tab[i][j] = num;
 
             if (solveBruteDensityHash(tab, N, M))
+            { 
                 return true;
-
+            }
             saveFailedState(currentBoardHash);
 
             tab[i][j] = 0;
