@@ -64,7 +64,7 @@ unsigned long long int computeInitialHash(int **tab, int N)
     return h;
 }
 
-/* Função de mistura de bits para distribuição uniforme dos índices(Algoritmo do claude pra evitar o máximo de colisões) */
+/* Função de mistura de bits para distribuição uniforme dos índices(Algoritmo do claude[IA] pra evitar o máximo de colisões) */
 unsigned long long mix(unsigned long long x)
 {
     x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
