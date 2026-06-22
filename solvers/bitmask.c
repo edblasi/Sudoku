@@ -1,19 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdbool.h>
 #include "solver.h"
-
-/*
- * CONVENÇÃO DE BITS:
- *   O número N é armazenado no bit N  →  bit = 1ULL << N
- *
- * __builtin_ffsll(x) retorna (índice do bit menos significativo + 1).
- * Portanto, se o bit N está setado:  ffsll retorna N+1
- *                                    num  = ffsll - 1 = N   ← correto
- *
- * Máscara de bits válidos (números 1..N nos bits 1..N):
- *   free &= ((1ULL << N) - 1) << 1
- */
 
 int BitEmpty(unsigned long long mask)
 {
@@ -42,10 +30,9 @@ void initBitTrack(int **tab, int N, int M, BitTrack *bt)
     }
 }
 
-/* Heurística House Density: célula com mais restrições (mais vizinhos preenchidos) */
+// Heurística House Density: célula com mais restrições (mais vizinhos preenchidos)
 bool HouseDensity(int **tab, int N, int M, BitTrack *pointer, int *bestI, int *bestJ)
 {
-    int b;
     int maxDensity = -1;
     bool found = false;
 
@@ -55,9 +42,9 @@ bool HouseDensity(int **tab, int N, int M, BitTrack *pointer, int *bestI, int *b
         {
             if (tab[i][j] == 0)
             {
-                b = (i / M) * M + (j / M);
-                unsigned long long density =
-                    pointer->blocks[b] | pointer->rows[i] | pointer->columns[j];
+                int b = (i / M) * M + (j / M);
+                unsigned long long density = pointer->blocks[b] | pointer->rows[i] | pointer->columns[j];
+                
                 int filledCount = BitEmpty(density);
 
                 if (filledCount > maxDensity)
@@ -78,13 +65,13 @@ bool HouseDensity(int **tab, int N, int M, BitTrack *pointer, int *bestI, int *b
    ----------------------------------------------------------------------- */
 bool solveBitmaskStandard(int **tab, int N, int M, BitTrack *pointer)
 {
-    int i = -1, j = -1, b;
+    int i = -1, j = -1;
     unsigned long long mask;
     bool foundEmpty = false;
 
-    for (int tempI = 0; tempI < N && !foundEmpty; tempI++)
+    for (int tempI = 0; (tempI < N) && !(foundEmpty); tempI++)
     {
-        for (int tempJ = 0; tempJ < N && !foundEmpty; tempJ++)
+        for (int tempJ = 0; (tempJ < N) && !(foundEmpty); tempJ++)
         {
             if (tab[tempI][tempJ] == 0)
             {
@@ -97,11 +84,11 @@ bool solveBitmaskStandard(int **tab, int N, int M, BitTrack *pointer)
     if (!foundEmpty)
         return true;
 
-    b    = (i / M) * M + (j / M);
+    int b = (i / M) * M + (j / M);
     mask = pointer->blocks[b] | pointer->rows[i] | pointer->columns[j];
 
     unsigned long long free = ~mask;
-    free &= ((1ULL << N) - 1) << 1;   /* mantém apenas bits 1..N */
+    free &= ((1ULL << N) - 1) << 1;   /* mantém apenas bits 1 até N */
 
     if (free == 0)
         return false;
@@ -110,7 +97,7 @@ bool solveBitmaskStandard(int **tab, int N, int M, BitTrack *pointer)
     {
         /* FIX: ffsll retorna índice+1 → subtrai 1 para obter o número real */
         int num = __builtin_ffsll(free) - 1;
-        unsigned long long bit = 1ULL << num;   /* FIX: bit único, não máscara */
+        unsigned long long bit = 1ULL << num;   
 
         tab[i][j] = num;
 
@@ -137,14 +124,14 @@ bool solveBitmaskStandard(int **tab, int N, int M, BitTrack *pointer)
    ----------------------------------------------------------------------- */
 bool solveSudokuBitmaskH(int **tab, int N, int M, BitTrack *pointer)
 {
-    int i, j, b;
+    int i, j;
     unsigned long long mask;
 
     if (!HouseDensity(tab, N, M, pointer, &i, &j))
     {
         return true;
     }
-    b = (i / M) * M + (j / M);
+    int b = (i / M) * M + (j / M);
     mask = pointer->blocks[b] | pointer->rows[i] | pointer->columns[j];
 
     unsigned long long free = ~mask;
@@ -182,7 +169,7 @@ bool solveSudokuBitmaskH(int **tab, int N, int M, BitTrack *pointer)
    ----------------------------------------------------------------------- */
 bool solveBitmaskHash(int **tab, int N, int M, BitTrack *pointer)
 {
-    int i, j, b;
+    int i, j;
     unsigned long long mask;
 
     if (!HouseDensity(tab, N, M, pointer, &i, &j))
@@ -190,7 +177,7 @@ bool solveBitmaskHash(int **tab, int N, int M, BitTrack *pointer)
         return true;
     }
 
-    b = (i / M) * M + (j / M);
+    int b = (i / M) * M + (j / M);
     mask = pointer->blocks[b] | pointer->rows[i] | pointer->columns[j];
 
     unsigned long long free = ~mask;
@@ -198,7 +185,6 @@ bool solveBitmaskHash(int **tab, int N, int M, BitTrack *pointer)
 
     while (free)
     {
-        /* FIX: ffsll - 1 para obter o número correto */
         int num = __builtin_ffsll(free) - 1;
         unsigned long long bit = 1ULL << num;
 
@@ -224,9 +210,9 @@ bool solveBitmaskHash(int **tab, int N, int M, BitTrack *pointer)
 
         tab[i][j] = 0;
 
-        pointer->rows[i]    &= ~bit;
+        pointer->rows[i] &= ~bit;
         pointer->columns[j] &= ~bit;
-        pointer->blocks[b]  &= ~bit;
+        pointer->blocks[b] &= ~bit;
 
         currentBoardHash ^= zobristTable[i][j][num];
         free &= ~bit;
